@@ -2194,8 +2194,263 @@ public:
     }
 };
 
-int main(){
+class SolutionfindNthDigit {
+public:
+    int findNthDigit(int n) {
+        n -= 1;
+        for(int digits = 1; digits < 11; digits ++) {
+            int first = pow(10, digits-1);
+            if( n < 9*first*digits) {
+                return std::stoi(std::to_string(first+n/digits).substr(n%digits,1));
+            }
+            n -= 9*first*digits;
+        }
+        
+        return -1;
+    }
+};
+
+class SolutionintegerReplacement {
+    unordered_map<int, int> numberReplacement;
+public:
+    int integerReplace(int n) {
+        if(n==1)
+            return 0;
+        if(numberReplacement.find(n)!=numberReplacement.end())
+            return numberReplacement[n];
+        
+        if(n%2==0)
+        {
+            numberReplacement[n] = integerReplace(n/2) + 1;
+            return numberReplacement[n];
+        }
+        else {
+            numberReplacement[n] = min(integerReplace(n+1), integerReplace(n-1));
+            return numberReplacement[n] + 1;
+        }
+    }
     
+    int integerReplacement(int n) {
+        return integerReplace(n);
+    }
+};
+
+class SolutionconvertToBase7 {
+public:
+    string convertToBase7(int num) {
+        string convertedstr;
+        if(num<0)
+            convertedstr.push_back('-');
+            num = abs(num);
+        
+        string revertedstr;
+        while(num!=0)
+        {
+            revertedstr.push_back(char(num%7+'0'));
+            num/=7;
+        }
+        
+        for(int i = static_cast<int>(revertedstr.size())-1; i>=0; i--)
+            convertedstr.push_back(revertedstr[i]);
+        
+        return convertedstr;
+    }
+};
+
+/*
+ pq = [(row[0], i, 0) for i, row in enumerate(A)]
+ heapq.heapify(pq)
+ 
+ ans = -1e9, 1e9
+ right = max(row[0] for row in A)
+ while pq:
+    left, i, j = heapq.heappop(pq)
+    if right - left < ans[1] - ans[0]:
+        ans = left, right
+    if j + 1 == len(A[i]):
+        return ans
+    v = A[i][j+1]
+    right = max(right, v)
+    heapq.heappush(pq, (v, i, j+1))
+*/
+
+
+class SolutionsmallestRange {
+public:
+    vector<int> smallestRange(vector<vector<int>>& nums) {
+        typedef vector<int>::iterator vi;
+        
+        struct comp {
+            bool operator()(pair<vi, vi> p1, pair<vi, vi> p2) {
+                return *p1.first > *p2.first;
+            }
+        };
+        
+        int lo = INT_MAX, hi = INT_MIN;
+        priority_queue<pair<vi, vi>, vector<pair<vi, vi> >, comp> pq;
+        for (auto &row : nums) {
+            lo = min(lo, row[0]);
+            hi = max(hi, row[0]);
+            pq.push({row.begin(), row.end()});
+        }
+        
+        vector<int> ans = {lo, hi};
+        while (true) {
+            auto p = pq.top();
+            pq.pop();
+            ++p.first;
+            if (p.first == p.second)
+                break;
+            pq.push(p);
+            
+            lo = *pq.top().first;
+            hi = max(hi, *p.first);
+            if (hi - lo < ans[1] - ans[0])
+                ans = {lo, hi};
+        }
+        return ans;
+        
+    }
+};
+
+class SolutionfindSecondMinimumValue {
+    
+public:
+    int findSecondMinimumValue(TreeNode* root) {
+        if(root==NULL)
+            return -1;
+        else
+        {
+            if(root->left==NULL&&root->right==NULL)
+                return -1;
+            else
+                if(root->left==NULL&&root->right!=NULL)
+                    return findSecondMinimumValue(root->right);
+                else
+                    if(root->left!=NULL&&root->right==NULL)
+                        return findSecondMinimumValue(root->left);
+                    else
+                        if((root->left->val)==(root->right->val))
+                        {
+                            int k1 = findSecondMinimumValue(root->left);
+                            int k2 = findSecondMinimumValue(root->right);
+                            if(k1==-1&&k2==-1)
+                                return -1;
+                            else
+                                if(k1==-1)
+                                    return k2;
+                                else
+                                    if(k2==-1)
+                                        return k1;
+                                    else
+                                        return min(k1, k2);
+                        }
+                        else
+                        {
+                            if((root->left->val)==(root->val))
+                            {
+                                int k = findSecondMinimumValue(root->left);
+                                return k==-1?(root->right->val):min(k, root->right->val);
+                            }
+                            else
+                            {
+                                int k = findSecondMinimumValue(root->right);
+                                return k==-1?(root->left->val):min(k, root->left->val);
+                                
+                            }
+                            
+                        }
+            
+        }
+    }
+};
+
+/*
+ answer = 0
+ for i in range(32)[::-1]:
+ answer <<= 1
+ prefixes = {num >> i for num in nums}
+ answer += any(answer^1 ^ p in prefixes for p in prefixes)
+ return answer
+ */
+
+
+class SolutionfindMaximumXOR {
+    int any(set<int>& prefixes, int answer) {
+        for(auto p: prefixes) {
+            if(prefixes.find(answer^1^p)!=prefixes.end())
+            {
+                cout<<answer<<endl;
+                return 1;
+            }
+        }
+        return 0;
+    }
+    
+public:
+    int findMaximumXOR(vector<int>& nums) {
+        int answer = 0;
+        for(int i = 31; i>=0; i--)
+        {
+            answer <<= 1;
+            set<int> prefixes;
+            for(auto num:nums) {
+                prefixes.insert(num>>i);
+            }
+            answer += any(prefixes, answer);
+        }
+        return answer;
+    }
+};
+
+class Compare
+{
+public:
+    bool operator() (int a, int b)
+    {
+        return a<b;
+    }
+};
+
+int main(){
+    std::priority_queue<int> q;
+    
+    for(int n : {1,8,5,6,3,4,0,9,7,2})
+        q.push(n);
+    cout<<q.top()<<endl;
+    print_queue(q);
+    
+    std::priority_queue<int, std::vector<int>, Compare> q2;
+    
+    for(int n : {1,8,5,6,3,4,0,9,7,2})
+        q2.push(n);
+    
+    print_queue(q2);
+    /*
+    SolutionfindMaximumXOR mysolution;
+    vector<int> mynums = {3, 10, 5, 25, 2, 8};
+    cout<<mysolution.findMaximumXOR(mynums)<<endl;
+     */
+    // cout<<"hello world"<<endl;
+    /*
+    std::priority_queue<int> q;
+    for(int n: {1,8,5,6})
+        q.push(n);
+    print_queue(q);
+    
+    std::priority_queue<int, std::vector<int>, std::greater<int> > q2;
+    
+    for(int n : {1,8,5,6,3,4,0,9,7,2})
+        q2.push(n);
+    
+    print_queue(q2);
+     */
+    /*
+    SolutionconvertToBase7 base7;
+    cout<<base7.convertToBase7(100)<<endl;
+    */
+    
+    /*
     std::string stringvalues = "125-320-52-75-333";
     std::istringstream iss (stringvalues);
     char _;
@@ -2206,6 +2461,7 @@ int main(){
         iss >> val>>_;
         std::cout << val*2 << '\n';
     }
+    */
 
      /*
     vector<string> allstrs;
